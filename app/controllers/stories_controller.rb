@@ -1,7 +1,10 @@
 class StoriesController < ApplicationController
     def index
-        page = params[:page].to_i
-        render json: {error: "Please provide page number as query paramter"} unless page.present?
+        page = params[:page]
+        if page.nil? || page == 0
+            render json: {error: "Please provide page number as query paramter"} 
+            return
+        end 
         stories_per_page = 5 # this would be an envirment variable
         user = User.find(params[:user_id])
         user_stories = user.stories.offset((page - 1)*stories_per_page).limit(stories_per_page)
@@ -20,7 +23,12 @@ class StoriesController < ApplicationController
     
 
     def top_stories
-      render json: Story.top_stories, status: :ok
+      page = params[:page]
+      if page.nil? || page == 0
+        render json: {error: "Please provide page number as query paramter"} 
+        return
+      end  
+      render json: Story.top_stories(page), status: :ok
     end    
 
     private
